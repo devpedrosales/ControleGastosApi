@@ -1,80 +1,47 @@
-﻿using ControleGastos.Context;
-using ControleGastos.Models;
+﻿using ControleGastos.DTOs;
+using ControleGastos.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ControleGastos.DTOs;
-using static ControleGastos.Models.Transacao;
 
 namespace ControleGastos.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class TransacaoController : ControllerBase
+public class TransacoesController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly ITransacaoService _service; 
 
-    public TransacaoController(AppDbContext context)
+    public TransacoesController(ITransacaoService service)
     {
-        _context = context;
+        _service = service;
     }
 
-    // GET: api/Transacoes (Mostra todas as contas salvas)
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var listaDto = await _context.Transacoes
-        .Select(t => new TransacaoDto  
-        {
-            Id = t.Id, 
-            Titulo = t.Titulo,
-            Valor = t.Valor,
-            Data = t.Data,
-            Categoria = t.Categoria
-            // Não expomos dados internos ou sensíveis aqui
-        })
-        .ToListAsync();
-
-        return Ok(listaDto);
+        var lista = await _service.ListarTodas();
+        return Ok(lista);
     }
 
-    
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] TransacaoDto dto)
     {
-        if (dto == null)
-            return BadRequest("Dados inválidos: JSON vazio.");
-
-        var transacaoReal = new Transacao
+        try
         {
-            Titulo = dto.Titulo,
-            Valor = dto.Valor,
-            Data = dto.Data,
-            Tipo = (TipoTransacao)dto.Tipo, 
-            Categoria = dto.Categoria
-            
-        };
-
-        // 1. Adiciona na memória
-        _context.Transacoes.Add(transacaoReal);
-
-        // 2. Comita (salva) no Banco SQL Server de verdade
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetAll), new { id = transacaoReal.Id }, transacaoReal);
+            // O Controller só repassa a bola
+            var transacaoCriada = await _service.Adicionar(dto);
+            return CreatedAtAction(nameof(GetAll), new { id = transacaoCriada.Id }, transacaoCriada);
+        }
+        catch (Exception ex)
+        {
+            // Se a regra de negócio (data futura) falhar, retorna erro 400
+            return BadRequest(ex.Message);
+        }
     }
 
-    // DELETE: api/Transacoes/5 (Para apagar se errar)
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var transacao = await _context.Transacoes.FindAsync(id);
-        if (transacao == null) return NotFound();
-
-        _context.Transacoes.Remove(transacao);
-        await _context.SaveChangesAsync();
-
-
-
+        await _service.Remover(id);
         return NoContent();
     }
 }
