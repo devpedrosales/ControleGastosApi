@@ -11,6 +11,6 @@ namespace ControleGastos.DTOs
         public decimal Valor { get; set; }
         public DateTime Data { get; set; } = DateTime.Now;
         public TipoTransacao Tipo { get; set; }
-        public string Categoria { get; set; } = "Geral";
+        public int CategoriaId { get; set; } 
     }
 }

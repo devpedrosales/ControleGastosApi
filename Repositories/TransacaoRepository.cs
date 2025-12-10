@@ -15,12 +15,17 @@ public class TransacaoRepository : ITransacaoRepository
 
     public async Task<IEnumerable<Transacao>> GetAll()
     {
-        return await _context.Transacoes.ToListAsync();
+        // O Include diz: "Quando buscar a transação, traga junto os dados da Categoria dela"
+        return await _context.Transacoes
+            .Include(t => t.Categoria)
+            .ToListAsync();
     }
 
     public async Task<Transacao?> GetById(int id)
     {
-        return await _context.Transacoes.FindAsync(id);
+        return await _context.Transacoes
+            .Include(t => t.Categoria) 
+            .FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task Add(Transacao transacao)
@@ -41,6 +46,7 @@ public class TransacaoRepository : ITransacaoRepository
     public async Task<IEnumerable<Transacao>> GetByPeriod(int mes, int ano)
     {
         return await _context.Transacoes
+            .Include(t => t.Categoria)
             .Where(t => t.Data.Month == mes && t.Data.Year == ano)
             .ToListAsync();
     }

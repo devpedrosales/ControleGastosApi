@@ -9,5 +9,6 @@ namespace ControleGastos.Context
 
         // Representa a tabela "Transacoes" no banco de dados
         public DbSet<Transacao> Transacoes { get; set; }
+        public DbSet<Categoria> Categorias { get; set; }
     }
 }

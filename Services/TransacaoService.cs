@@ -27,19 +27,18 @@ public class TransacaoService : ITransacaoService
             throw new Exception("Não é permitido lançar transações futuras!");
         }
 
-        // 2. Conversão DTO -> Entidade (Tiramos isso do Controller)
         var transacao = new Transacao
         {
             Titulo = dto.Titulo,
             Valor = dto.Valor,
             Data = dto.Data,
             Tipo = (TipoTransacao)dto.Tipo,
-            Categoria = dto.Categoria
+
+            // Agora mapeamos o ID
+            CategoriaId = dto.CategoriaId
         };
 
-        // 3. Chama o Repository para salvar
         await _repository.Add(transacao);
-
         return transacao;
     }
 
@@ -56,7 +55,7 @@ public class TransacaoService : ITransacaoService
 
         var gastosPorCategoria = transacoes
             .Where(t => t.Tipo == TipoTransacao.Despesas)
-            .GroupBy(t => t.Categoria)
+            .GroupBy(t => t.Categoria?.Nome ?? "Sem Categoria")
             .Select(g => new {
                 Categoria = g.Key,
                 Total = g.Sum(t => t.Valor)
