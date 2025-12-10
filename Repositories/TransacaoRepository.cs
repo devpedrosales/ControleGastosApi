@@ -38,4 +38,10 @@ public class TransacaoRepository : ITransacaoRepository
             await _context.SaveChangesAsync();
         }
     }
+    public async Task<IEnumerable<Transacao>> GetByPeriod(int mes, int ano)
+    {
+        return await _context.Transacoes
+            .Where(t => t.Data.Month == mes && t.Data.Year == ano)
+            .ToListAsync();
+    }
 }

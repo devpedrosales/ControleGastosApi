@@ -8,4 +8,6 @@ public interface ITransacaoService
     Task<IEnumerable<Transacao>> ListarTodas();
     Task<Transacao> Adicionar(TransacaoDto dto); // O Service resolve a conversão
     Task Remover(int id);
+    Task<object> ObterResumoMensal(int mes, int ano);
+
 }
