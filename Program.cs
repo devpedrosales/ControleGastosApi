@@ -18,6 +18,18 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ITransacaoRepository, TransacaoRepository>();
 builder.Services.AddScoped<ITransacaoService, TransacaoService>();
 
+// Adicionar política de CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowWeb",
+        builder =>
+        {
+            builder.AllowAnyOrigin() // Em produção, troque pela URL exata do front
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
 
 var app = builder.Build();
 
@@ -29,6 +41,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowWeb");
 
 app.UseAuthorization();
 

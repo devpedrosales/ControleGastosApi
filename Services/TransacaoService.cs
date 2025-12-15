@@ -26,6 +26,10 @@ public class TransacaoService : ITransacaoService
         {
             throw new Exception("Não é permitido lançar transações futuras!");
         }
+        if (dto.Valor <= 0)
+        {
+            throw new Exception("Não é permitido que o valor de entrada seja menor ou igual a 0!");
+        }
 
         var transacao = new Transacao
         {
@@ -44,6 +48,11 @@ public class TransacaoService : ITransacaoService
 
     public async Task Remover(int id)
     {
+        if (id <= 0)
+        {
+            throw new Exception("USUÁRIO NÃO ENCONTRADO! : NÃO É PERMITIDO ID 0 OU MENOR QUE 0!");
+        }
+
         await _repository.Delete(id);
     }
     public async Task<object> ObterResumoMensal(int mes, int ano)
